@@ -17,7 +17,7 @@
 
 
 ## 💻 Skills
-- **Programming Language**: Python
+- **Programming Language**: Python3
 - **DataBase** : MySQL 
 - **Web Framework**: Flask, Streamlit 
 
