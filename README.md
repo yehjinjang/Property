@@ -19,11 +19,10 @@
 ## 💻 Skills
 - **Programming Language**: Python3
 - **DataBase** : MySQL 
-- **Web Framework**: Flask, Streamlit 
+- **Web Framework**: Streamlit 
 
 ## 📂 데이터 출처
 - **부동산 가격**: [서울시 부동산 실거래가 정보 (2022~2025)](https://www.data.go.kr/)
-- **대기질 (미세먼지)**: [공공 데이터](https://www.data.go.kr/data/15089266/fileData.do)
 - **응급실 위치 데이터**: [공공 데이터](https://www.data.go.kr/data/15088910/fileData.do)
 - **범죄율 데이터**: [공공 데이터](https://www.data.go.kr/data/3074462/fileData.do)
 - **버스 정류장 좌표**: [서울 열린 데이터](https://data.seoul.go.kr/dataList/OA-15067/S/1/datasetView.do)
