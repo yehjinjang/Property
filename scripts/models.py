@@ -33,14 +33,14 @@ class Building(Base):
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     address_id = Column(BigInteger, ForeignKey("address.id"), nullable=False)
-    building_name = Column(String(30), nullable=False)
+    name = Column(String(30), nullable=False)
     construction_year = Column(SmallInteger, nullable=False)
-    building_usage = Column(String(5), nullable=False)
-    building_area_sqm = Column(DECIMAL(5, 2), nullable=False)
+    purpose = Column(String(5), nullable=False)
+    area_sqm = Column(DECIMAL(5, 2), nullable=False)
     floor = Column(SmallInteger, nullable=False)
 
     def __repr__(self):
-        return f"<Building(address_id={self.address_id}, building_name={self.building_name}, construction_year={self.construction_year}, building_usage={self.building_usage}, building_area_sqm={self.building_area_sqm}, floor={self.floor})>"
+        return f"<Building(address_id={self.address_id}, name={self.name}, construction_year={self.construction_year}, usage={self.usage}, area_sqm={self.area_sqm}, floor={self.floor})>"
 
 
 class RealestateDeal(Base):
@@ -63,10 +63,10 @@ class RealestateDeal(Base):
 class BusStation(Base):
     __tablename__ = "bus_station"
 
-    station_number = Column(SmallInteger, primary_key=True)
-    station_name = Column(String(26), nullable=False)
+    id = Column(SmallInteger, primary_key=True)
+    name = Column(String(26), nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
     def __repr__(self):
-        return f"<BusStation(station_number={self.station_number}, station_name={self.station_name}, latitude={self.latitude}, longitude={self.longitude})>"
+        return f"<BusStation(id={self.id}, name={self.name}, latitude={self.latitude}, longitude={self.longitude})>"
