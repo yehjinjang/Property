@@ -58,3 +58,15 @@ class RealestateDeal(Base):
 
     def __repr__(self):
         return f"<RealestateDeal(building_id={self.building_id}, reception_year={self.reception_year}, transaction_price_million={self.transaction_price_million}, report_type={self.report_type}, reported_real_estate_agent_district={self.reported_real_estate_agent_district}, contract_year={self.contract_year}, contract_month={self.contract_month}, contract_day={self.contract_day})>"
+
+
+class BusStation(Base):
+    __tablename__ = "bus_station"
+
+    station_number = Column(SmallInteger, primary_key=True)
+    station_name = Column(String(26), nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+
+    def __repr__(self):
+        return f"<BusStation(station_number={self.station_number}, station_name={self.station_name}, latitude={self.latitude}, longitude={self.longitude})>"
