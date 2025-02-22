@@ -87,3 +87,16 @@ class Hospital(Base):
 
     def __repr__(self):
         return f"<Hospital(address={self.address}, map={self.map}, name={self.name}, phone={self.phone}, emergency_phone={self.emergency_phone}, latitude={self.latitude}, longitude={self.longitude})>"
+
+
+class Subway(Base):
+    __tablename__ = "subway"
+
+    id = Column(SmallInteger, primary_key=True, autoincrement=True)
+    line = Column(String(3), nullable=False)
+    name = Column(String(10), nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+
+    def __repr__(self):
+        return f"<Subway(line={self.line}, name={self.name}, latitude={self.latitude}, longitude={self.longitude})>"
