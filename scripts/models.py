@@ -4,6 +4,8 @@ from sqlalchemy import (
     BigInteger,
     SmallInteger,
     Float,
+    DECIMAL,
+    ForeignKey,
 )
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -23,3 +25,18 @@ class Address(Base):
 
     def __repr__(self):
         return f"<Address(district={self.district}, legal_dong={self.legal_dong}, main_lot_number={self.main_lot_number}, sub_lot_number={self.sub_lot_number}, latitude={self.latitude}, longitude={self.longitude})>"
+
+
+class Building(Base):
+    __tableanme__ = "building"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    address_id = Column(BigInteger, ForeignKey("address.id"), nullable=False)
+    building_name = Column(String(30), nullable=False)
+    construction_year = Column(SmallInteger, nullable=False)
+    building_usage = Column(String(5), nullable=False)
+    building_area_sqm = Column(DECIMAL(5, 2), nullable=False)
+    floor = Column(SmallInteger, nullable=False)
+
+    def __repr__(self):
+        return f"<Building(address_id={self.address_id}, building_name={self.building_name}, construction_year={self.construction_year}, building_usage={self.building_usage}, building_area_sqm={self.building_area_sqm}, floor={self.floor})>"
