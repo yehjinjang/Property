@@ -6,6 +6,7 @@ from sqlalchemy import (
     Float,
     DECIMAL,
     ForeignKey,
+    Integer,
 )
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -40,3 +41,20 @@ class Building(Base):
 
     def __repr__(self):
         return f"<Building(address_id={self.address_id}, building_name={self.building_name}, construction_year={self.construction_year}, building_usage={self.building_usage}, building_area_sqm={self.building_area_sqm}, floor={self.floor})>"
+
+
+class RealestateDeal(Base):
+    __tablename__ = "realestate_deal"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    building_id = Column(BigInteger, ForeignKey("building.id"), nullable=False)
+    reception_year = Column(SmallInteger, nullable=False)
+    transaction_price_million = Column(Integer, nullable=False)
+    report_type = Column(String(4), nullable=False)
+    reported_real_estate_agent_district = Column(String(27), nullable=False)
+    contract_year = Column(SmallInteger, nullable=False)
+    contract_month = Column(SmallInteger, nullable=False)
+    contract_day = Column(SmallInteger, nullable=False)
+
+    def __repr__(self):
+        return f"<RealestateDeal(building_id={self.building_id}, reception_year={self.reception_year}, transaction_price_million={self.transaction_price_million}, report_type={self.report_type}, reported_real_estate_agent_district={self.reported_real_estate_agent_district}, contract_year={self.contract_year}, contract_month={self.contract_month}, contract_day={self.contract_day})>"
