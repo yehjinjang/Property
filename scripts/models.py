@@ -70,3 +70,20 @@ class BusStation(Base):
 
     def __repr__(self):
         return f"<BusStation(id={self.id}, name={self.name}, latitude={self.latitude}, longitude={self.longitude})>"
+
+
+class Hospital(Base):
+    __tablename__ = "hospital"
+
+    id = Column(SmallInteger, primary_key=True, autoincrement=True)
+    address = Column(String(22), nullable=False)
+    note = Column(String(239), nullable=False)
+    map = Column(String(67), nullable=False)
+    name = Column(String(29), nullable=False)
+    phone = Column(String(12), nullable=False)
+    emergency_phone = Column(String(13), nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+
+    def __repr__(self):
+        return f"<Hospital(address={self.address}, map={self.map}, name={self.name}, phone={self.phone}, emergency_phone={self.emergency_phone}, latitude={self.latitude}, longitude={self.longitude})>"
