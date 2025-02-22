@@ -1,7 +1,6 @@
 from sqlalchemy import (
     Column,
     String,
-    BigInteger,
     SmallInteger,
     Float,
     DECIMAL,
@@ -16,7 +15,7 @@ Base = declarative_base()
 class Address(Base):
     __tablename__ = "address"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     district = Column(String(4), nullable=False)
     legal_dong = Column(String(6), nullable=False)
     main_lot_number = Column(SmallInteger, nullable=False)
@@ -31,8 +30,8 @@ class Address(Base):
 class Building(Base):
     __tableanme__ = "building"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    address_id = Column(BigInteger, ForeignKey("address.id"), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    address_id = Column(Integer, ForeignKey("address.id"), nullable=False)
     name = Column(String(30), nullable=False)
     construction_year = Column(SmallInteger, nullable=False)
     purpose = Column(String(5), nullable=False)
@@ -46,8 +45,8 @@ class Building(Base):
 class RealestateDeal(Base):
     __tablename__ = "realestate_deal"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    building_id = Column(BigInteger, ForeignKey("building.id"), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    building_id = Column(Integer, ForeignKey("building.id"), nullable=False)
     reception_year = Column(SmallInteger, nullable=False)
     transaction_price_million = Column(Integer, nullable=False)
     report_type = Column(String(4), nullable=False)
@@ -90,7 +89,7 @@ class Hospital(Base):
 
 
 class Subway(Base):
-    __tablename__ = "subway"
+    __tablename__ = "subway_station"
 
     id = Column(SmallInteger, primary_key=True, autoincrement=True)
     line = Column(String(3), nullable=False)
