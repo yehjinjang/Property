@@ -99,3 +99,16 @@ class Subway(Base):
 
     def __repr__(self):
         return f"<Subway(line={self.line}, name={self.name}, latitude={self.latitude}, longitude={self.longitude})>"
+
+
+class Tag(Base):
+    __tablename__ = "tag"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    realestate_deal_id = Column(Integer, nullable=False)
+    label = Column(String(20), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<Tag(realestate_deal_id={self.realestate_deal_id}, label={self.label})>"
+        )
