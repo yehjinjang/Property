@@ -6,6 +6,7 @@ from sqlalchemy import (
     DECIMAL,
     ForeignKey,
     Integer,
+    UniqueConstraint,
 )
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -19,7 +20,7 @@ class Address(Base):
     district = Column(String(4), nullable=False)
     legal_dong = Column(String(6), nullable=False)
     main_lot_number = Column(SmallInteger, nullable=False)
-    sub_lot_number = Column(SmallInteger, nullable=False)
+    sub_lot_number = Column(SmallInteger, nullable=True)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
@@ -28,7 +29,8 @@ class Address(Base):
 
 
 class Building(Base):
-    __tableanme__ = "building"
+    __tablename__ = "building"
+    __table_args__ = (UniqueConstraint("address_id", "name", name="uq_address_name"),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     address_id = Column(Integer, ForeignKey("address.id"), nullable=False)
