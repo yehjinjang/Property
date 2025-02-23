@@ -69,7 +69,7 @@ def show_filter_page():
         )
 
     with col3:
-        size = st.slider("건물 면적 (평)", 10, 100, (20, 80))
+        size = st.slider("건물 면적 (평)", 1, 100, (20, 80))
         price = st.selectbox(
             "가격 범위", ["1억 이하", "1~3억", "3~5억", "5~10억", "10억 이상"]
         )
@@ -233,7 +233,7 @@ def search_building():
         )
         if boolean
     ]
-    size = filters.get("건물 면적")
+    size = [size * 3.3058 for size in filters.get("건물 면적")]
     price_range = get_price(filters.get("가격 범위"))
     floor = get_floor(filters.get("층"))
 
