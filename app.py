@@ -11,6 +11,7 @@ import pandas as pd
 import os
 from datetime import datetime
 import sys
+from dotenv import load_dotenv
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -18,6 +19,8 @@ sys.path.append(PROJECT_ROOT)
 from models import Building, Tag, RealestateDeal
 
 BUILDING_AGE_THRESHOLD = 5
+load_dotenv()
+
 
 engine = create_engine(os.getenv("DATABASE_URL"), echo=False)
 
