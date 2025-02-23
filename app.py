@@ -16,9 +16,6 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(PROJECT_ROOT)
-
 from models import Building, Tag, RealestateDeal, Address
 
 BUILDING_AGE_THRESHOLD = 5
