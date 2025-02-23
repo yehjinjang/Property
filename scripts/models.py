@@ -9,6 +9,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -40,6 +41,8 @@ class Building(Base):
     area_sqm = Column(DECIMAL(5, 2), nullable=False)
     floor = Column(SmallInteger, nullable=False)
 
+    address = relationship("Address", back_populates="buildings")
+
     def __repr__(self):
         return f"<Building(address_id={self.address_id}, name={self.name}, construction_year={self.construction_year}, usage={self.usage}, area_sqm={self.area_sqm}, floor={self.floor})>"
 
@@ -56,6 +59,8 @@ class RealestateDeal(Base):
     contract_year = Column(SmallInteger, nullable=False)
     contract_month = Column(SmallInteger, nullable=False)
     contract_day = Column(SmallInteger, nullable=False)
+
+    building = relationship("Building", back_populates="realestate_deals")
 
     def __repr__(self):
         return f"<RealestateDeal(building_id={self.building_id}, reception_year={self.reception_year}, transaction_price_million={self.transaction_price_million}, report_type={self.report_type}, reported_real_estate_agent_district={self.reported_real_estate_agent_district}, contract_year={self.contract_year}, contract_month={self.contract_month}, contract_day={self.contract_day})>"
@@ -109,6 +114,8 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     building_id = Column(Integer, ForeignKey("building.id"), nullable=False)
     label = Column(String(20), nullable=False)
+
+    building = relationship("Building", back_populates="tags")
 
     def __repr__(self):
         return (
