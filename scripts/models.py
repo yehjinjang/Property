@@ -107,7 +107,7 @@ class Tag(Base):
     __tablename__ = "tag"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    realestate_deal_id = Column(Integer, nullable=False)
+    building_id = Column(Integer, ForeignKey("building.id"), nullable=False)
     label = Column(String(20), nullable=False)
 
     def __repr__(self):
