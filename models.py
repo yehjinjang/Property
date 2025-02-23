@@ -50,6 +50,7 @@ class Building(Base):
 
     addresses = relationship("Address", back_populates="buildings")
     tags = relationship("Tag", back_populates="building", cascade="all, delete-orphan")
+    deals = relationship("RealestateDeal", back_populates="building")
 
     def __repr__(self):
         return f"<Building(address_id={self.address_id}, name={self.name}, construction_year={self.construction_year}, purpose={self.purpose}, area_sqm={self.area_sqm}, floor={self.floor})>"
@@ -73,7 +74,7 @@ class RealestateDeal(Base):
     contract_month = Column(SmallInteger, nullable=False)
     contract_day = Column(SmallInteger, nullable=False)
 
-    # building = relationship("Building", back_populates="realestate_deals")
+    building = relationship("Building", back_populates="deals")
 
     def __repr__(self):
         return f"<RealestateDeal(building_id={self.building_id}, reception_year={self.reception_year}, transaction_price_million={self.transaction_price_million}, report_type={self.report_type}, reported_real_estate_agent_district={self.reported_real_estate_agent_district}, contract_year={self.contract_year}, contract_month={self.contract_month}, contract_day={self.contract_day})>"
