@@ -11,11 +11,15 @@ import pandas as pd
 import os
 from datetime import datetime
 import sys
+import json
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from models import Building, Tag, RealestateDeal
+from models import Building, Tag, RealestateDeal, Address
 
 BUILDING_AGE_THRESHOLD = 5
 
@@ -115,6 +119,7 @@ def show_splash_page():
 def show_loading_page():
     with st.spinner("🏡 추천 매물을 찾고 있습니다..."):
         search_building()
+        get_recommend()
     st.session_state["page"] = "results"
     st.rerun()
 
@@ -128,45 +133,18 @@ def show_results_page():
 
     recommendations = [
         {
-            "이름": "래미안 아파트",
-            "가격": "4억",
-            "면적": "35평",
-            "위치": "서울 강남구",
-            "lat": 37.497,
-            "lon": 127.027,
-        },
-        {
-            "이름": "자이 오피스텔",
-            "가격": "3.2억",
-            "면적": "25평",
-            "위치": "서울 서초구",
-            "lat": 37.502,
-            "lon": 127.024,
-        },
-        {
-            "이름": "힐스테이트 주택",
-            "가격": "2.8억",
-            "면적": "30평",
-            "위치": "서울 마포구",
-            "lat": 37.551,
-            "lon": 126.980,
-        },
-        {
-            "이름": "롯데캐슬 아파트",
-            "가격": "6억",
-            "면적": "40평",
-            "위치": "서울 송파구",
-            "lat": 37.506,
-            "lon": 127.055,
-        },
-        {
-            "이름": "푸르지오 오피스텔",
-            "가격": "5억",
-            "면적": "28평",
-            "위치": "서울 동작구",
-            "lat": 37.479,
-            "lon": 126.921,
-        },
+            "이름": building.name,
+            "가격": f"{sum(deal.transaction_price_million for deal in building.deals)
+            // len(building.deals)
+            // 10000}억",
+            "면적": building.area_sqm,
+            "위치": f"서울 {building.addresses.district}",
+            "lat": building.addresses.latitude,
+            "lon": building.addresses.longitude,
+        }
+        for building in session.query(Building)
+        .filter(Building.id.in_(st.session_state["recommendations"]))
+        .all()
     ]
 
     map = folium.Map(location=[37.5, 127.0], zoom_start=12)
@@ -182,18 +160,19 @@ def show_results_page():
 
     st.subheader("🏡 추천 매물 Top 5")
     container = st.container()
-    with container:
-        cols = st.columns(len(recommendations))
-        for idx, rec in enumerate(recommendations):
-            with cols[idx]:
-                st.write(f"### {rec['이름']}")
-                st.write(f"1. 가격: {rec['가격']}")
-                st.write(f"2. 면적: {rec['면적']}")
-                st.write(f"3. 위치: {rec['위치']}")
-                st.image(
-                    "https://source.unsplash.com/200x150/?house,apartment",
-                    use_container_width=True,
-                )
+    if recommendations:
+        with container:
+            cols = st.columns(len(recommendations))
+            for idx, rec in enumerate(recommendations):
+                with cols[idx]:
+                    st.write(f"### {rec['이름']}")
+                    st.write(f"1. 가격: {rec['가격']}")
+                    st.write(f"2. 면적: {rec['면적']}")
+                    st.write(f"3. 위치: {rec['위치']}")
+                    st.image(
+                        "https://source.unsplash.com/200x150/?house,apartment",
+                        use_container_width=True,
+                    )
 
 
 def search_building():
@@ -272,8 +251,30 @@ def search_building():
         else:
             query = query.filter(Building.floor.between(floor[0], floor[1]))
 
-    buildings = query.all()
-    print(buildings)
+    buildings = query.limit(50).all()
+    st.session_state["buildings"] = buildings
+    print(len(buildings))
+
+
+def get_recommend():
+    buildings = st.session_state["buildings"]
+    data = [building.to_dict() for building in buildings]
+    schemas = [
+        ResponseSchema(
+            name="ids", description="List of selected building IDs", type="list"
+        )
+    ]
+    parser = StructuredOutputParser.from_response_schemas(schemas)
+    template = PromptTemplate.from_template(
+        "Here is the given dataset:\n{data}\n\n"
+        "Select the 5 best entries and return only their IDs in a JSON list format.\n"
+        'Example output: {{"ids": [14951, 14952, 14953, 14954, 14955]}}\n'
+        f"Output format: {parser.get_format_instructions().replace('{', '{{').replace('}', '}}')}"
+    )
+    llm = ChatOpenAI(temperature=0)
+    chain = template | llm | parser
+    recommendations = chain.invoke({"data": data}).get("ids")
+    st.session_state["recommendations"] = recommendations
 
 
 if "page" not in st.session_state:
