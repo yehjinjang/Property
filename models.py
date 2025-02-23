@@ -25,8 +25,15 @@ class Address(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
+    buildings = relationship("Building", back_populates="addresses")
+
     def __repr__(self):
         return f"<Address(district={self.district}, legal_dong={self.legal_dong}, main_lot_number={self.main_lot_number}, sub_lot_number={self.sub_lot_number}, latitude={self.latitude}, longitude={self.longitude})>"
+
+    def to_dict(self):
+        return {
+            key: value for key, value in vars(self).items() if not key.startswith("_")
+        }
 
 
 class Building(Base):
@@ -41,11 +48,17 @@ class Building(Base):
     area_sqm = Column(DECIMAL(5, 2), nullable=False)
     floor = Column(SmallInteger, nullable=False)
 
-    # address = relationship("Address", back_populates="buildings")
+    addresses = relationship("Address", back_populates="buildings")
     tags = relationship("Tag", back_populates="building", cascade="all, delete-orphan")
+    deals = relationship("RealestateDeal", back_populates="building")
 
     def __repr__(self):
         return f"<Building(address_id={self.address_id}, name={self.name}, construction_year={self.construction_year}, purpose={self.purpose}, area_sqm={self.area_sqm}, floor={self.floor})>"
+
+    def to_dict(self):
+        return {
+            key: value for key, value in vars(self).items() if not key.startswith("_")
+        }
 
 
 class RealestateDeal(Base):
@@ -61,10 +74,15 @@ class RealestateDeal(Base):
     contract_month = Column(SmallInteger, nullable=False)
     contract_day = Column(SmallInteger, nullable=False)
 
-    # building = relationship("Building", back_populates="realestate_deals")
+    building = relationship("Building", back_populates="deals")
 
     def __repr__(self):
         return f"<RealestateDeal(building_id={self.building_id}, reception_year={self.reception_year}, transaction_price_million={self.transaction_price_million}, report_type={self.report_type}, reported_real_estate_agent_district={self.reported_real_estate_agent_district}, contract_year={self.contract_year}, contract_month={self.contract_month}, contract_day={self.contract_day})>"
+
+    def to_dict(self):
+        return {
+            key: value for key, value in vars(self).items() if not key.startswith("_")
+        }
 
 
 class BusStation(Base):
