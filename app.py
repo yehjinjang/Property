@@ -329,7 +329,7 @@ def show_results_page():
             quarterly_deal_counts.columns = ["연도-분기", "거래량"]
             quarterly_deal_counts = quarterly_deal_counts.sort_values(by="연도-분기")
             
-            quarterly_deal_counts["연도-분기"] = quarterly_deal_counts["연도-분기"].astype(str)
+            # quarterly_deal_counts["연도-분기"] = quarterly_deal_counts["연도-분기"].astype(str)
 
 
             fig = px.bar(
@@ -342,7 +342,9 @@ def show_results_page():
             )
 
             fig.update_layout(
-                xaxis=dict(tickmode="array", tickvals=quarterly_deal_counts["연도-분기"], tickangle=-45),
+                xaxis=dict(tickmode="array",
+                           tickvals=quarterly_deal_counts["연도-분기"].astype(str), 
+                           tickangle=-45),
                 yaxis=dict(title="거래량"),
                 bargap=0.2,
             )
