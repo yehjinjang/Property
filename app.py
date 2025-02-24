@@ -1,6 +1,5 @@
 import streamlit as st
 import time
-import random
 import folium
 from streamlit_folium import folium_static
 import streamlit.components.v1 as components
@@ -15,11 +14,11 @@ import json
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-
+from dotenv import load_dotenv
 from models import Building, Tag, RealestateDeal, Address
 
 BUILDING_AGE_THRESHOLD = 5
-
+load_dotenv()
 engine = create_engine(os.getenv("DATABASE_URL"), echo=False)
 
 Session = sessionmaker(bind=engine)
@@ -107,7 +106,7 @@ def show_splash_page():
 
     st.markdown("**선택한 조건:**  \n" + "  \n".join(keywords))  # 줄 바꿈 추가
 
-    if st.button("확인", key="confirm_splash"):
+    if st.button("내 조건에 맞는 매물을 추천 받으세요!", key="confirm_splash"):
         st.session_state["loading"] = True
         st.session_state["page"] = "loading"
         st.rerun()
