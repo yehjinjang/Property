@@ -240,7 +240,7 @@ def show_splash_page():
 
 # loading pages
 def show_loading_page():
-    with st.spinner("🏡 추천 매물을 찾고 있습니다..."):
+    with st.spinner("🏡 AI가 추천 매물을 찾고 있습니다..."):
         search_building()
         get_recommend()
     st.session_state["page"] = "results"
@@ -257,8 +257,8 @@ def show_results_page():
     recommendations = [
         {
             "이름": building.name,
-            "가격": f"{building.deals[0].transaction_price_million/10000:.2f}억",
-            "면적": f"{float(building.area_sqm)*0.3025:.2f}평",
+            "가격": float(building.deals[0].transaction_price_million),
+            "면적": float(building.area_sqm) * 0.3025, 
             "위치": f"서울 {building.address.district}",
             "lat": building.address.latitude,
             "lon": building.address.longitude,
@@ -268,17 +268,23 @@ def show_results_page():
         .all()
     ]
 
-    map = folium.Map(location=[37.5, 127.0], zoom_start=12)
+    if recommendations:
+        avg_lat = sum(rec["lat"] for rec in recommendations) / len(recommendations)
+        avg_lon = sum(rec["lon"] for rec in recommendations) / len(recommendations)
+    else:
+        avg_lat, avg_lon = 37.5, 127.0 
+
+    map = folium.Map(location=[avg_lat, avg_lon], zoom_start=12)
 
     for rec in recommendations:
         folium.Marker(
             location=[rec["lat"], rec["lon"]],
-            popup=f"<b>{rec['이름']}</b><br>💰 {rec['가격']}<br>📏 {rec['면적']}<br>📍 {rec['위치']}",
+            popup=f"<b>{rec['이름']}</b><br>💰 {rec['가격']/10000:.2f}억<br>📏 {rec['면적']:.2f}평<br>📍 {rec['위치']}",
             icon=folium.Icon(color="blue"),
         ).add_to(map)
 
     folium_static(map)
-
+    
     st.subheader("🏡 추천 매물 Top 5")
     container = st.container()
     if recommendations:
@@ -287,9 +293,9 @@ def show_results_page():
             for idx, rec in enumerate(recommendations):
                 with cols[idx]:
                     st.markdown(f"#### {rec['이름']}")
-                    st.write(f"가격: {rec['가격']}")
-                    st.write(f"면적: {rec['면적']}")
-                    st.write(f"위치: {rec['위치']}")
+                    st.write(f"💰 가격: {rec['가격']/10000:.2f}억")
+                    st.write(f"📏 면적: {rec['면적']:.2f}평")
+                    st.write(f"📍 위치: {rec['위치']}")
 
 
 def search_building():
