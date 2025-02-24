@@ -275,13 +275,21 @@ def show_results_page():
         avg_lat, avg_lon = 37.5, 127.0 
 
     map = folium.Map(location=[avg_lat, avg_lon], zoom_start=12)
-
+    
     for rec in recommendations:
-        folium.Marker(
-            location=[rec["lat"], rec["lon"]],
-            popup=f"<b>{rec['이름']}</b><br>💰 {rec['가격']/10000:.2f}억<br>📏 {rec['면적']:.2f}평<br>📍 {rec['위치']}",
-            icon=folium.Icon(color="blue"),
-        ).add_to(map)
+        popup_content = f"""
+        <div style="font-size:14px; text-align:center; width: 250px;">
+            <b>{rec['이름']}</b><br>
+            📍 {rec['위치']}<br>
+            💰 {rec['가격'] / 10000:.2f}억 | 📏 {rec['면적']:.2f}평
+        </div>
+        """
+    
+    folium.Marker(
+        location=[rec["lat"], rec["lon"]],
+        popup=folium.Popup(popup_content, max_width=300),
+        icon=folium.Icon(color="blue"),
+    ).add_to(map)
 
     folium_static(map)
     
