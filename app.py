@@ -56,7 +56,7 @@ def show_filter_page():
     st.title("🏡 REAL-ESTATE")
     st.subheader("권병진님, 원하는 집을 찾아드려요!")
 
-    st.markdown("### 원하는 조건을 선택하세요")
+    st.markdown("#### 원하는 조건을 선택하세요")
     col1, col2 = st.columns(2)
     
     if "filters" not in st.session_state:
@@ -64,7 +64,9 @@ def show_filter_page():
             "병세권": False,
             "역세권": False,
             "버세권": False,
-            "신축 여부": False
+            "신축 여부": False, 
+            "지역" : "서울특별시",
+            "구" : None 
         }
 
     with col1:
@@ -94,6 +96,13 @@ def show_filter_page():
 
     with col2:
         st.markdown("#### 🏢 건물 정보")
+        seoul_gu_list = ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구",
+                         "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구",
+                         "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"]
+
+        selected_gu = st.selectbox("서울 지역구", ["전체"] + seoul_gu_list)
+        st.session_state["filters"]["구"] = None if selected_gu == "전체" else selected_gu
+
         building_type = st.selectbox("건물 유형", ["전체", "아파트", "오피스텔", "연립다세대"])
         size = st.slider("건물 면적 (평)", 1, 100, (20, 80))
         price = st.selectbox("가격 범위", ["1억 이하", "1~3억", "3~5억", "5~10억", "10억 이상"])
@@ -138,11 +147,23 @@ def show_splash_page():
 
     if selected_filters:
         st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)
+
+        if "지역" in selected_filters:
+            icon = ICON_MAP.get("지역", "📍")
+            gu_text = f" {filters['구']}" if filters.get("구") else ""
+            display_text = f"{icon} {selected_filters['지역']}{gu_text}"
+            st.markdown(
+                f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', 
+                unsafe_allow_html=True
+            )
+
         for key, value in selected_filters.items():
+            if key in ["지역", "구"]:
+                continue 
+
             icon = ICON_MAP.get(key, "🏷️")
-            
+
             if isinstance(value, bool):
-                # bool 타입은 기존처럼 키 값만 출력
                 display_text = f"{icon} {key}"
             elif key == "건물 유형":
                 display_text = f"{icon} 건물 유형은 {value}"
@@ -153,13 +174,13 @@ def show_splash_page():
             elif key == "층":
                 display_text = f"{icon} 층은 {value}"
             else:
-                # 나머지 경우 기존 방식 그대로
                 display_text = f"{icon} {key}: {value}"
             
             st.markdown(
                 f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', 
                 unsafe_allow_html=True
             )
+
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.info("🔎 선택한 조건이 없습니다.")
@@ -224,10 +245,6 @@ def show_results_page():
                     st.write(f"1. 가격: {rec['가격']}")
                     st.write(f"2. 면적: {rec['면적']}")
                     st.write(f"3. 위치: {rec['위치']}")
-                    st.image(
-                        "https://source.unsplash.com/200x150/?house,apartment",
-                        use_container_width=True,
-                    )
 
 
 def search_building():
@@ -245,6 +262,7 @@ def search_building():
     )
 
     query = session.query(Building).join(RealestateDeal)
+    print(query)
 
     query = query.join(
         latest_deal_subquery,
@@ -270,7 +288,6 @@ def search_building():
     size = [size * 3.3058 for size in filters.get("건물 면적")]
     price_range = get_price(filters.get("가격 범위"))
     floor = get_floor(filters.get("층"))
-
     if tags:
         for tag in tags:
             query = query.filter(
@@ -308,7 +325,6 @@ def search_building():
 
     buildings = query.limit(50).all()
     st.session_state["buildings"] = buildings
-    print(len(buildings))
 
 
 def get_recommend():
