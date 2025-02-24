@@ -11,11 +11,17 @@ import os
 from datetime import datetime
 import sys
 import json
+# langchain 
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from dotenv import load_dotenv
 from models import Building, Tag, RealestateDeal, Address
+# visualization 
+import plotly.express as px 
+import matplotlib.pyplot as plt 
+import matplotlib.font_manager as fm
+plt.rc("font", family="AppleGothic") 
 
 BUILDING_AGE_THRESHOLD = 5
 load_dotenv()
@@ -193,8 +199,9 @@ def show_splash_page():
             gu_text = f" {filters['구']}" if filters.get("구") else ""
             display_text = f"{icon} {selected_filters['지역']}{gu_text}"
             st.markdown(
-                f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>',
-                unsafe_allow_html=True,
+                # 라이트모드일때는 #D3D3D3, 다크 모드일때는 #00000
+                f'<p style="text-align: center; font-weight: bold; background-color: #D3D3D3; padding: 20px; border-radius: 10px;">{display_text}</p>', 
+                unsafe_allow_html=True
             )
 
         for key, value in selected_filters.items():
@@ -221,8 +228,8 @@ def show_splash_page():
                 display_text = f"{icon} {key}: {value}"
 
             st.markdown(
-                f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>',
-                unsafe_allow_html=True,
+                f'<p style="text-align: center; font-weight: bold; background-color: #D3D3D3; padding: 20px; border-radius: 10px;">{display_text}</p>', 
+                unsafe_allow_html=True
             )
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -239,7 +246,7 @@ def show_splash_page():
 
 # loading pages
 def show_loading_page():
-    with st.spinner("🏡 추천 매물을 찾고 있습니다..."):
+    with st.spinner("🏡 AI가 추천 매물을 찾고 있습니다..."):
         search_building()
         get_recommend()
     st.session_state["page"] = "results"
@@ -255,9 +262,10 @@ def show_results_page():
 
     recommendations = [
         {
+            "id": building.id,
             "이름": building.name,
-            "가격": f"{building.deals[0].transaction_price_million/10000:.2f}억",
-            "면적": f"{float(building.area_sqm)*0.3025:.2f}평",
+            "가격": float(building.deals[0].transaction_price_million),
+            "면적": float(building.area_sqm) * 0.3025, 
             "위치": f"서울 {building.address.district}",
             "lat": building.address.latitude,
             "lon": building.address.longitude,
@@ -267,30 +275,97 @@ def show_results_page():
         .all()
     ]
 
-    map = folium.Map(location=[37.5, 127.0], zoom_start=12)
+    if recommendations:
+        min_lat = min(rec["lat"] for rec in recommendations)
+        max_lat = max(rec["lat"] for rec in recommendations)
+        min_lon = min(rec["lon"] for rec in recommendations)
+        max_lon = max(rec["lon"] for rec in recommendations)
+
+        center_lat = (min_lat + max_lat) / 2
+        center_lon = (min_lon + max_lon) / 2
+    else:
+        center_lat, center_lon = 37.5, 127.0 
+        
+    map = folium.Map(location=[center_lat, center_lon], zoom_start=12)
 
     for rec in recommendations:
+        popup_content = f"""
+        <div style="font-size:14px; text-align:center; width: 250px;">
+            <b>{rec['이름']}</b><br>
+            📍 {rec['위치']}<br>
+            💰 {rec['가격'] / 10000:.2f}억 | 📏 {rec['면적']:.2f}평
+        </div>
+        """
+
         folium.Marker(
             location=[rec["lat"], rec["lon"]],
-            popup=f"<b>{rec['이름']}</b><br>💰 {rec['가격']}<br>📏 {rec['면적']}<br>📍 {rec['위치']}",
+            popup=folium.Popup(popup_content, max_width=300),
             icon=folium.Icon(color="blue"),
         ).add_to(map)
 
     folium_static(map)
-
+    
     st.subheader("🏡 추천 매물 Top 5")
-    container = st.container()
+
     if recommendations:
-        with container:
-            cols = st.columns(len(recommendations))
-            for idx, rec in enumerate(recommendations):
-                with cols[idx]:
-                    st.markdown(f"#### {rec['이름']}")
-                    st.write(f"가격: {rec['가격']}")
-                    st.write(f"면적: {rec['면적']}")
-                    st.write(f"위치: {rec['위치']}")
+        tab_titles = [f"{rec['이름']} ({rec['위치']})" for rec in recommendations]
+        tabs = st.tabs(tab_titles)
 
+        for tab, rec in zip(tabs, recommendations):
+            with tab:
+                st.write(f"💰 가격: {rec['가격']/10000:.2f}억")
+                st.write(f"📏 면적: {rec['면적']:.2f}평")
 
+                # 해당 매물의 거래 내역 가져오기
+                deals = session.query(RealestateDeal).filter(RealestateDeal.building_id == rec["id"]).all()
+                if not deals:
+                    st.info("거래 내역이 없습니다.")
+                else:
+                    # 연도-분기 데이터 변환 (3개월 단위)
+                    deal_data = [
+                        (f"{deal.contract_year}.{(deal.contract_month - 1) // 3 + 1}")
+                        for deal in deals
+                    ]
+
+                    # 분기별 거래량 집계
+                    df_deal = pd.DataFrame(deal_data, columns=["연도-분기"])
+                    quarterly_deal_counts = df_deal["연도-분기"].value_counts().reset_index()
+                    quarterly_deal_counts.columns = ["연도-분기", "거래량"]
+                    quarterly_deal_counts = quarterly_deal_counts.sort_values(by="연도-분기")
+
+                    fig = px.bar(
+                        quarterly_deal_counts,
+                        x="연도-분기",
+                        y="거래량",
+                        title=f"{rec['이름']} 분기별 거래량",
+                        labels={"연도-분기": "연도-분기", "거래량": "거래량"},
+                        text_auto=True,
+                    )
+
+                    fig.update_layout(
+                        xaxis=dict(tickmode="array",
+                                   tickvals=quarterly_deal_counts["연도-분기"].astype(str), 
+                                   tickangle=-45),
+                        yaxis=dict(title="거래량"),
+                        bargap=0.2,
+                    )
+
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    df = pd.DataFrame(
+                        {
+                            "거래 일자": [
+                                "{}-{:02d}-{:02d}".format(deal.contract_year, deal.contract_month, deal.contract_day)
+                                for deal in deals
+                            ],
+                            "거래 가격(억)": [deal.transaction_price_million / 10000 for deal in deals],
+                        }
+                    )
+                    df = df.sort_values(by=["거래 일자"], ascending=False)
+                    st.dataframe(df, hide_index=True)
+
+        
+# search query building 
 def search_building():
     latest_deal_subquery = (
         session.query(
@@ -373,7 +448,6 @@ def search_building():
     buildings = query.limit(50).all()
     st.session_state["buildings"] = buildings
     print(len(buildings))
-
 
 def get_recommend():
     buildings = st.session_state["buildings"]
