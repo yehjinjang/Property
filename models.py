@@ -10,6 +10,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy import desc
 
 Base = declarative_base()
 
@@ -25,35 +26,10 @@ class Address(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
-    buildings = relationship("Building", back_populates="addresses")
+    buildings = relationship("Building", back_populates="address")
 
     def __repr__(self):
         return f"<Address(district={self.district}, legal_dong={self.legal_dong}, main_lot_number={self.main_lot_number}, sub_lot_number={self.sub_lot_number}, latitude={self.latitude}, longitude={self.longitude})>"
-
-    def to_dict(self):
-        return {
-            key: value for key, value in vars(self).items() if not key.startswith("_")
-        }
-
-
-class Building(Base):
-    __tablename__ = "building"
-    __table_args__ = (UniqueConstraint("address_id", "name", name="uq_address_name"),)
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    address_id = Column(Integer, ForeignKey("address.id"), nullable=False)
-    name = Column(String(30), nullable=False)
-    construction_year = Column(SmallInteger, nullable=False)
-    purpose = Column(String(5), nullable=False)
-    area_sqm = Column(DECIMAL(5, 2), nullable=False)
-    floor = Column(SmallInteger, nullable=False)
-
-    addresses = relationship("Address", back_populates="buildings")
-    tags = relationship("Tag", back_populates="building", cascade="all, delete-orphan")
-    deals = relationship("RealestateDeal", back_populates="building")
-
-    def __repr__(self):
-        return f"<Building(address_id={self.address_id}, name={self.name}, construction_year={self.construction_year}, purpose={self.purpose}, area_sqm={self.area_sqm}, floor={self.floor})>"
 
     def to_dict(self):
         return {
@@ -78,6 +54,39 @@ class RealestateDeal(Base):
 
     def __repr__(self):
         return f"<RealestateDeal(building_id={self.building_id}, reception_year={self.reception_year}, transaction_price_million={self.transaction_price_million}, report_type={self.report_type}, reported_real_estate_agent_district={self.reported_real_estate_agent_district}, contract_year={self.contract_year}, contract_month={self.contract_month}, contract_day={self.contract_day})>"
+
+    def to_dict(self):
+        return {
+            key: value for key, value in vars(self).items() if not key.startswith("_")
+        }
+
+
+class Building(Base):
+    __tablename__ = "building"
+    __table_args__ = (UniqueConstraint("address_id", "name", name="uq_address_name"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    address_id = Column(Integer, ForeignKey("address.id"), nullable=False)
+    name = Column(String(30), nullable=False)
+    construction_year = Column(SmallInteger, nullable=False)
+    purpose = Column(String(5), nullable=False)
+    area_sqm = Column(DECIMAL(5, 2), nullable=False)
+    floor = Column(SmallInteger, nullable=False)
+
+    address = relationship("Address", back_populates="buildings")
+    tags = relationship("Tag", back_populates="building", cascade="all, delete-orphan")
+    deals = relationship(
+        "RealestateDeal",
+        back_populates="building",
+        order_by=(
+            desc(RealestateDeal.contract_year),
+            desc(RealestateDeal.contract_year),
+            desc(RealestateDeal.contract_year),
+        ),
+    )
+
+    def __repr__(self):
+        return f"<Building(address_id={self.address_id}, name={self.name}, construction_year={self.construction_year}, purpose={self.purpose}, area_sqm={self.area_sqm}, floor={self.floor})>"
 
     def to_dict(self):
         return {
