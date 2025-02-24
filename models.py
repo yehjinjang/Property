@@ -80,8 +80,8 @@ class Building(Base):
         back_populates="building",
         order_by=(
             desc(RealestateDeal.contract_year),
-            desc(RealestateDeal.contract_year),
-            desc(RealestateDeal.contract_year),
+            desc(RealestateDeal.contract_month),
+            desc(RealestateDeal.contract_day),
         ),
     )
 

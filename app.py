@@ -16,6 +16,7 @@ from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from dotenv import load_dotenv
 from models import Building, Tag, RealestateDeal, Address
+import matplotlib.pyplot as plt 
 
 BUILDING_AGE_THRESHOLD = 5
 load_dotenv()
@@ -248,6 +249,8 @@ def show_loading_page():
 
 
 # 결과 pages
+import matplotlib.pyplot as plt
+
 def show_results_page():
     if st.button("홈으로", key="back_results"):
         st.session_state["page"] = "filters"
@@ -256,6 +259,7 @@ def show_results_page():
 
     recommendations = [
         {
+            "id": building.id,  # 🔥 매물 ID 추가 (거래 내역 조회용)
             "이름": building.name,
             "가격": float(building.deals[0].transaction_price_million),
             "면적": float(building.area_sqm) * 0.3025, 
@@ -268,21 +272,22 @@ def show_results_page():
         .all()
     ]
 
-    # 추천 매물들의 중앙 좌표 계산
+    # 🌍 추천 매물들의 중앙 좌표 계산
     if recommendations:
         min_lat = min(rec["lat"] for rec in recommendations)
         max_lat = max(rec["lat"] for rec in recommendations)
         min_lon = min(rec["lon"] for rec in recommendations)
         max_lon = max(rec["lon"] for rec in recommendations)
 
-        center_lat = (min_lat + max_lat) / 2  
-        center_lon = (min_lon + max_lon) / 2  
+        center_lat = (min_lat + max_lat) / 2
+        center_lon = (min_lon + max_lon) / 2
     else:
-        center_lat, center_lon = 37.5, 127.0  
+        center_lat, center_lon = 37.5, 127.0  # 기본값 (서울 중심)
 
-
+    # 🏡 지도 초기화
     map = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-    
+
+    # 🔥 모든 추천 매물에 대해 마커 추가
     for rec in recommendations:
         popup_content = f"""
         <div style="font-size:14px; text-align:center; width: 250px;">
@@ -298,19 +303,45 @@ def show_results_page():
             icon=folium.Icon(color="blue"),
         ).add_to(map)
 
+    # Streamlit에 Folium 지도 표시
     folium_static(map)
-    
+
+    # 🔥 추천 매물 리스트 표시 (탭하면 열리는 UI 적용)
     st.subheader("🏡 추천 매물 Top 5")
-    container = st.container()
-    if recommendations:
-        with container:
-            cols = st.columns(len(recommendations))
-            for idx, rec in enumerate(recommendations):
-                with cols[idx]:
-                    st.markdown(f"#### {rec['이름']}")
-                    st.write(f"💰 가격: {rec['가격']/10000:.2f}억")
-                    st.write(f"📏 면적: {rec['면적']:.2f}평")
-                    st.write(f"📍 위치: {rec['위치']}")
+    for rec in recommendations:
+        with st.expander(f"▶ {rec['이름']} ({rec['위치']})", expanded=False):
+            st.write(f"💰 가격: {rec['가격']/10000:.2f}억")
+            st.write(f"📏 면적: {rec['면적']:.2f}평")
+            
+            # 🔥 해당 매물의 거래 내역 가져오기
+            deals = session.query(RealestateDeal).filter(RealestateDeal.building_id == rec["id"]).all()
+            if not deals:
+                st.info("📉 거래 내역이 없습니다.")
+            else:
+                # 📊 연도별 거래량 히스토그램 생성
+                deal_years = [deal.contract_year for deal in deals]
+                fig, ax = plt.subplots()
+                ax.hist(deal_years, bins=range(min(deal_years), max(deal_years) + 2), color="skyblue", edgecolor="black")
+                ax.set_title(f"📊 {rec['이름']} 연도별 거래량")
+                ax.set_xlabel("연도")
+                ax.set_ylabel("거래량")
+                st.pyplot(fig)
+
+                # 📄 거래 내역 리스트 표시
+                df = pd.DataFrame(
+                    {
+                        "거래 연도": [deal.contract_year for deal in deals],
+                        "거래 월": [deal.contract_month for deal in deals],
+                        "거래 일": [deal.contract_day for deal in deals],
+                        "거래 가격 (억)": [deal.transaction_price_million / 10000 for deal in deals],
+                        "층": [deal.floor for deal in deals],
+                    }
+                )
+                df = df.sort_values(by=["거래 연도", "거래 월", "거래 일"], ascending=False)
+                st.dataframe(df, hide_index=True)
+
+
+
 
 
 def search_building():
