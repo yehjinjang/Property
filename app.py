@@ -36,7 +36,7 @@ session = Session()
 
 BUILDING_AGE_THRESHOLD = 5
 
-
+st.set_page_config(page_title="부동산 메이트", layout="centered")
 # st.sidebar.title("🌱 SeSAC Mini Project")
 
 
