@@ -153,7 +153,8 @@ def show_splash_page():
             gu_text = f" {filters['구']}" if filters.get("구") else ""
             display_text = f"{icon} {selected_filters['지역']}{gu_text}"
             st.markdown(
-                f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', 
+                # 라이트모드일때는 #D3D3D3, 다크 모드일때는 #00000
+                f'<p style="text-align: center; font-weight: bold; background-color: #D3D3D3; padding: 20px; border-radius: 10px;">{display_text}</p>', 
                 unsafe_allow_html=True
             )
 
@@ -177,7 +178,8 @@ def show_splash_page():
                 display_text = f"{icon} {key}: {value}"
             
             st.markdown(
-                f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', 
+                # 라이트모드일때는 #D3D3D3, 다크 모드일때는 #00000
+                f'<p style="text-align: center; font-weight: bold; background-color: #D3D3D3; padding: 20px; border-radius: 10px;">{display_text}</p>', 
                 unsafe_allow_html=True
             )
 
