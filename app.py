@@ -1,35 +1,43 @@
+# Basic
+import os
+import pandas as pd
+from datetime import datetime
+
+# Streamlit Web UI
 import streamlit as st
 import folium
 from streamlit_folium import folium_static
+
+# Visualization
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.rc("font", family="AppleGothic")
+
+# DataBase
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
-import pandas as pd
-import numpy as np
-import os
-from datetime import datetime
+from dotenv import load_dotenv
 
-# langchain
+# LangChain Recommendation System
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from dotenv import load_dotenv
 from models import Building, Tag, RealestateDeal, Address
 
-# visualization
-import plotly.express as px
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-
-plt.rc("font", family="AppleGothic")
-
-BUILDING_AGE_THRESHOLD = 5
 load_dotenv()
 engine = create_engine(os.getenv("DATABASE_URL"), echo=False)
 
 Session = sessionmaker(bind=engine)
 session = Session()
+
+BUILDING_AGE_THRESHOLD = 5
+
+
+# st.sidebar.title("🌱 SeSAC Mini Project")
 
 
 def get_price(price):
@@ -64,7 +72,7 @@ def toggle_filter(filter_key):
 
 # 첫 enter filter page
 def show_filter_page():
-    st.title("🏡 REAL-ESTATE")
+    st.title("🏡 부동산 메이트")
     st.subheader("권병진님, 원하는 집을 찾아드려요!")
 
     st.markdown("#### 원하는 조건을 선택하세요")
