@@ -154,14 +154,21 @@ def show_splash_page():
             st.session_state["page"] = "loading"
             st.rerun()
 
+# loading pages
+def show_loading_page():
+    with st.spinner("🏡 추천 매물을 찾고 있습니다..."):
+        search_building()
+        get_recommend()
+    st.session_state["page"] = "results"
+    st.rerun()
+    
 # 결과 pages
 def show_results_page():
-    st.title("📍 추천 매물 지도")
-
-    if st.button("🔙 뒤로 가기", key="back_results"):
+    if st.button("<", key="back_results"):
         st.session_state["page"] = "filters"
         st.rerun()
-
+    st.title("📍 추천 매물 지도")
+    
     recommendations = [
         {
             "이름": building.name,
