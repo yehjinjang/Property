@@ -91,33 +91,44 @@ def show_filter_page():
         st.session_state["page"] = "splash"
         st.rerun()
 
+ICON_MAP = {
+    "병세권": "🏥",  
+    "역세권": "🚇",  
+    "버세권": "🚏",  
+    "건물 유형": "🏢",
+    "건물 면적": "📏", 
+    "가격 범위": "💰",  
+    "층": "🛗",  
+}
+
 
 def show_splash_page():
-    st.title("🔍 선택한 조건 정리")
-
-    if st.button("🔙 뒤로 가기", key="back_splash"):
+    if st.button("<", key="back_splash"):
         st.session_state["page"] = "filters"
         st.rerun()
 
-    st.markdown("**아래 조건으로 매물을 찾고 있어요!**")
+    st.title("🔍 이런 매물을 원하시는군요!")
 
-    filters = st.session_state["filters"]
-    keywords = [f"🏷️ {k}: {v}" for k, v in filters.items() if v]
+    filters = st.session_state.get("filters", {})
+    selected_filters = {k: v for k, v in filters.items() if v}
 
-    st.markdown("**선택한 조건:**  \n" + "  \n".join(keywords))  # 줄 바꿈 추가
+    if selected_filters:
+        st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)  
+        for key, value in selected_filters.items():
+            icon = ICON_MAP.get(key, "🏷️")  
+            st.markdown(f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{icon} {key}: {value}</p>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  
+    else:
+        st.info("🔎 선택한 조건이 없습니다.")
 
-    if st.button("내 조건에 맞는 매물을 추천 받으세요!", key="confirm_splash"):
-        st.session_state["loading"] = True
-        st.session_state["page"] = "loading"
-        st.rerun()
 
+    col1, col2, col3 = st.columns([1, 3, 1]) 
 
-def show_loading_page():
-    with st.spinner("🏡 추천 매물을 찾고 있습니다..."):
-        search_building()
-        get_recommend()
-    st.session_state["page"] = "results"
-    st.rerun()
+    with col2:
+        if st.button("확인", key="confirm_splash", use_container_width=True):
+            st.session_state["loading"] = True
+            st.session_state["page"] = "loading"
+            st.rerun()
 
 
 def show_results_page():
