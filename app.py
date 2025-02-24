@@ -139,8 +139,13 @@ def show_splash_page():
     if selected_filters:
         st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)  
         for key, value in selected_filters.items():
-            icon = ICON_MAP.get(key, "🏷️")  
-            st.markdown(f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{icon} {key}: {value}</p>', unsafe_allow_html=True)
+            icon = ICON_MAP.get(key, "🏷️")
+            if isinstance(value, bool):
+                display_text = f"{icon} {key}"
+            else:
+                display_text = f"{icon} {key}: {value}"
+            
+            st.markdown(f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)  
     else:
         st.info("🔎 선택한 조건이 없습니다.")
