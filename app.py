@@ -1,27 +1,35 @@
-import streamlit as st
-import time
-import folium
-from streamlit_folium import folium_static
-import streamlit.components.v1 as components
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import func
-import pandas as pd
+# Basic 
 import os
-from datetime import datetime
 import sys
 import json
-# langchain 
-from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-from dotenv import load_dotenv
-from models import Building, Tag, RealestateDeal, Address
-# visualization 
+import time
+import pandas as pd
+from datetime import datetime
+
+# Streamlit Web UI 
+import streamlit as st
+import streamlit.components.v1 as components
+import folium
+from streamlit_folium import folium_static
+
+# Visualization 
 import plotly.express as px 
 import matplotlib.pyplot as plt 
 import matplotlib.font_manager as fm
-plt.rc("font", family="AppleGothic") 
+plt.rc("font", family="AppleGothic")
+
+# DataBase 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import func
+from dotenv import load_dotenv
+
+# LangChain Recommendation System
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+from langchain.output_parsers import StructuredOutputParser, ResponseSchema
+from models import Building, Tag, RealestateDeal, Address
+
 
 BUILDING_AGE_THRESHOLD = 5
 load_dotenv()
