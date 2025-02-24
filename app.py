@@ -48,49 +48,69 @@ def get_floor(floor):
     elif floor == "9층 이상 (고층)":
         return (9, None)
 
+def toggle_filter(filter_key):
+    st.session_state["filters"][filter_key] = not st.session_state["filters"][filter_key]
+    
 # 첫 enter filter page
 def show_filter_page():
     st.title("🏡 REAL-ESTATE")
     st.subheader("권병진님, 원하는 집을 찾아드려요!")
 
     st.markdown("### 원하는 조건을 선택하세요")
-
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
+    
+    if "filters" not in st.session_state:
+        st.session_state["filters"] = {
+            "병세권": False,
+            "역세권": False,
+            "버세권": False,
+            "신축 여부": False
+        }
 
     with col1:
-        hs = st.checkbox("병세권 (응급실 가까이)")
-        ss = st.checkbox("역세권 (지하철역 가까이)")
-        bs = st.checkbox("버세권 (버스정류장 가까이)")
+        st.markdown("#### 🏘️ 입지 조건")  
+        
+        # 체크박스에서 버튼으로 변경
+        st.button(
+            f"🏥 병세권 (응급실 가까이) {'✅' if st.session_state['filters']['병세권'] else ''}",
+            on_click=toggle_filter,
+            args=("병세권",)
+        )
+        st.button(
+            f"🚇 역세권 (지하철역 가까이) {'✅' if st.session_state['filters']['역세권'] else ''}",
+            on_click=toggle_filter,
+            args=("역세권",)
+        )
+        st.button(
+            f"🚏 버세권 (버스정류장 가까이) {'✅' if st.session_state['filters']['버세권'] else ''}",
+            on_click=toggle_filter,
+            args=("버세권",)
+        )
+        st.button(
+            f"🏗️ 신축 여부 (최근 5년) {'✅' if st.session_state['filters']['신축 여부'] else ''}",
+            on_click=toggle_filter,
+            args=("신축 여부",)
+        )
 
     with col2:
-        new_building = st.checkbox("신축 여부 (최근 5년)")
-        building_type = st.selectbox(
-            "건물 유형", ["전체", "아파트", "오피스텔", "연립다세대"]
-        )
-
-    with col3:
+        st.markdown("#### 🏢 건물 정보")
+        building_type = st.selectbox("건물 유형", ["전체", "아파트", "오피스텔", "연립다세대"])
         size = st.slider("건물 면적 (평)", 1, 100, (20, 80))
-        price = st.selectbox(
-            "가격 범위", ["1억 이하", "1~3억", "3~5억", "5~10억", "10억 이상"]
-        )
-        floor = st.selectbox(
-            "층 선택", ["전체", "1~5층 (저층)", "6~8층 (중층)", "9층 이상 (고층)"]
-        )
+        price = st.selectbox("가격 범위", ["1억 이하", "1~3억", "3~5억", "5~10억", "10억 이상"])
+        floor = st.selectbox("층 선택", ["전체", "1~5층 (저층)", "6~8층 (중층)", "9층 이상 (고층)"])
+        
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 5, 1])
 
     with col2:
         if st.button("🏠 추천 받기", use_container_width=True):
-            st.session_state["filters"] = {
-                "병세권": hs,
-                "역세권": ss,
-                "버세권": bs,
-                "신축 여부": new_building,
+            st.session_state["filters"].update({
                 "건물 유형": building_type,
                 "건물 면적": size,
                 "가격 범위": price,
                 "층": floor,
-            }
+            })
             st.session_state["page"] = "splash"
             st.rerun()
             
