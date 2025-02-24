@@ -268,13 +268,20 @@ def show_results_page():
         .all()
     ]
 
+    # 추천 매물들의 중앙 좌표 계산
     if recommendations:
-        avg_lat = sum(rec["lat"] for rec in recommendations) / len(recommendations)
-        avg_lon = sum(rec["lon"] for rec in recommendations) / len(recommendations)
-    else:
-        avg_lat, avg_lon = 37.5, 127.0 
+        min_lat = min(rec["lat"] for rec in recommendations)
+        max_lat = max(rec["lat"] for rec in recommendations)
+        min_lon = min(rec["lon"] for rec in recommendations)
+        max_lon = max(rec["lon"] for rec in recommendations)
 
-    map = folium.Map(location=[avg_lat, avg_lon], zoom_start=12)
+        center_lat = (min_lat + max_lat) / 2  
+        center_lon = (min_lon + max_lon) / 2  
+    else:
+        center_lat, center_lon = 37.5, 127.0  
+
+
+    map = folium.Map(location=[center_lat, center_lon], zoom_start=12)
     
     for rec in recommendations:
         popup_content = f"""
@@ -284,12 +291,12 @@ def show_results_page():
             💰 {rec['가격'] / 10000:.2f}억 | 📏 {rec['면적']:.2f}평
         </div>
         """
-    
-    folium.Marker(
-        location=[rec["lat"], rec["lon"]],
-        popup=folium.Popup(popup_content, max_width=300),
-        icon=folium.Icon(color="blue"),
-    ).add_to(map)
+
+        folium.Marker(
+            location=[rec["lat"], rec["lon"]],
+            popup=folium.Popup(popup_content, max_width=300),
+            icon=folium.Icon(color="blue"),
+        ).add_to(map)
 
     folium_static(map)
     
