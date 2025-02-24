@@ -48,9 +48,13 @@ def get_floor(floor):
     elif floor == "9층 이상 (고층)":
         return (9, None)
 
+
 def toggle_filter(filter_key):
-    st.session_state["filters"][filter_key] = not st.session_state["filters"][filter_key]
-    
+    st.session_state["filters"][filter_key] = not st.session_state["filters"][
+        filter_key
+    ]
+
+
 # 첫 enter filter page
 def show_filter_page():
     st.title("🏡 REAL-ESTATE")
@@ -58,83 +62,119 @@ def show_filter_page():
 
     st.markdown("#### 원하는 조건을 선택하세요")
     col1, col2 = st.columns(2)
-    
+
     if "filters" not in st.session_state:
         st.session_state["filters"] = {
             "병세권": False,
             "역세권": False,
             "버세권": False,
-            "신축 여부": False, 
-            "지역" : "서울특별시",
-            "구" : None 
+            "신축 여부": False,
+            "지역": "서울특별시",
+            "구": None,
         }
 
     with col1:
-        st.markdown("#### 🏘️ 입지 조건")  
-        
+        st.markdown("#### 🏘️ 입지 조건")
+
         # 체크박스에서 버튼으로 변경
         st.button(
             f"🏥 병세권 (응급실 가까이) {'✅' if st.session_state['filters']['병세권'] else ''}",
             on_click=toggle_filter,
-            args=("병세권",)
+            args=("병세권",),
         )
         st.button(
             f"🚇 역세권 (지하철역 가까이) {'✅' if st.session_state['filters']['역세권'] else ''}",
             on_click=toggle_filter,
-            args=("역세권",)
+            args=("역세권",),
         )
         st.button(
             f"🚏 버세권 (버스정류장 가까이) {'✅' if st.session_state['filters']['버세권'] else ''}",
             on_click=toggle_filter,
-            args=("버세권",)
+            args=("버세권",),
         )
         st.button(
             f"🏗️ 신축 여부 (최근 5년) {'✅' if st.session_state['filters']['신축 여부'] else ''}",
             on_click=toggle_filter,
-            args=("신축 여부",)
+            args=("신축 여부",),
         )
 
     with col2:
         st.markdown("#### 🏢 건물 정보")
-        seoul_gu_list = ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구",
-                         "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구",
-                         "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"]
+        seoul_gu_list = [
+            "강남구",
+            "강동구",
+            "강북구",
+            "강서구",
+            "관악구",
+            "광진구",
+            "구로구",
+            "금천구",
+            "노원구",
+            "도봉구",
+            "동대문구",
+            "동작구",
+            "마포구",
+            "서대문구",
+            "서초구",
+            "성동구",
+            "성북구",
+            "송파구",
+            "양천구",
+            "영등포구",
+            "용산구",
+            "은평구",
+            "종로구",
+            "중구",
+            "중랑구",
+        ]
 
         selected_gu = st.selectbox("서울 지역구", ["전체"] + seoul_gu_list)
-        st.session_state["filters"]["구"] = None if selected_gu == "전체" else selected_gu
+        st.session_state["filters"]["구"] = (
+            None if selected_gu == "전체" else selected_gu
+        )
 
-        building_type = st.selectbox("건물 유형", ["전체", "아파트", "오피스텔", "연립다세대"])
+        building_type = st.selectbox(
+            "건물 유형", ["전체", "아파트", "오피스텔", "연립다세대"]
+        )
         size = st.slider("건물 면적 (평)", 1, 100, (20, 80))
-        price = st.selectbox("가격 범위", ["1억 이하", "1~3억", "3~5억", "5~10억", "10억 이상"])
-        floor = st.selectbox("층 선택", ["전체", "1~5층 (저층)", "6~8층 (중층)", "9층 이상 (고층)"])
-        
+        price = st.selectbox(
+            "가격 범위", ["1억 이하", "1~3억", "3~5억", "5~10억", "10억 이상"]
+        )
+        floor = st.selectbox(
+            "층 선택", ["전체", "1~5층 (저층)", "6~8층 (중층)", "9층 이상 (고층)"]
+        )
+
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 5, 1])
 
     with col2:
         if st.button("추천 받기", use_container_width=True):
-            st.session_state["filters"].update({
-                "건물 유형": building_type,
-                "건물 면적": size,
-                "가격 범위": price,
-                "층": floor,
-            })
+            st.session_state["filters"].update(
+                {
+                    "건물 유형": building_type,
+                    "건물 면적": size,
+                    "가격 범위": price,
+                    "층": floor,
+                }
+            )
             st.session_state["page"] = "splash"
             st.rerun()
-            
+
+
 # for spalsh pages
 ICON_MAP = {
-    "병세권": "🏥",  
-    "역세권": "🚇",  
-    "버세권": "🚏",  
+    "병세권": "🏥",
+    "역세권": "🚇",
+    "버세권": "🚏",
     "건물 유형": "🏢",
-    "건물 면적": "📏", 
-    "가격 범위": "💰",  
-    "층": "🛗",  
+    "건물 면적": "📏",
+    "가격 범위": "💰",
+    "층": "🛗",
 }
 
-# 확인 페이지 
+
+# 확인 페이지
 def show_splash_page():
     if st.button("<", key="back_splash"):
         st.session_state["page"] = "filters"
@@ -160,7 +200,7 @@ def show_splash_page():
 
         for key, value in selected_filters.items():
             if key in ["지역", "구"]:
-                continue 
+                continue
 
             icon = ICON_MAP.get(key, "🏷️")
 
@@ -170,20 +210,23 @@ def show_splash_page():
                 display_text = f"{icon} 건물 유형은 {value}"
             elif key == "가격 범위":
                 display_text = f"{icon} 가격 범위는 {value}"
-            elif key == "건물 면적" and isinstance(value, (list, tuple)) and len(value) == 2:
+            elif (
+                key == "건물 면적"
+                and isinstance(value, (list, tuple))
+                and len(value) == 2
+            ):
                 display_text = f"{icon} 건물 면적은 {value[0]} ~ {value[1]} 평"
             elif key == "층":
                 display_text = f"{icon} 층은 {value}"
             else:
                 display_text = f"{icon} {key}: {value}"
-            
+
             st.markdown(
-                # 라이트모드일때는 #D3D3D3, 다크 모드일때는 #00000
                 f'<p style="text-align: center; font-weight: bold; background-color: #D3D3D3; padding: 20px; border-radius: 10px;">{display_text}</p>', 
                 unsafe_allow_html=True
             )
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.info("🔎 선택한 조건이 없습니다.")
 
@@ -194,6 +237,7 @@ def show_splash_page():
             st.session_state["page"] = "loading"
             st.rerun()
 
+
 # loading pages
 def show_loading_page():
     with st.spinner("🏡 추천 매물을 찾고 있습니다..."):
@@ -201,24 +245,23 @@ def show_loading_page():
         get_recommend()
     st.session_state["page"] = "results"
     st.rerun()
-    
+
+
 # 결과 pages
 def show_results_page():
     if st.button("홈으로", key="back_results"):
         st.session_state["page"] = "filters"
         st.rerun()
     st.title("📍 추천 매물 지도")
-    
+
     recommendations = [
         {
             "이름": building.name,
-            "가격": f"{sum(deal.transaction_price_million for deal in building.deals)
-            // len(building.deals)
-            // 10000}억",
-            "면적": building.area_sqm,
-            "위치": f"서울 {building.addresses.district}",
-            "lat": building.addresses.latitude,
-            "lon": building.addresses.longitude,
+            "가격": f"{building.deals[0].transaction_price_million/10000:.2f}억",
+            "면적": f"{float(building.area_sqm)*0.3025:.2f}평",
+            "위치": f"서울 {building.address.district}",
+            "lat": building.address.latitude,
+            "lon": building.address.longitude,
         }
         for building in session.query(Building)
         .filter(Building.id.in_(st.session_state["recommendations"]))
@@ -243,10 +286,10 @@ def show_results_page():
             cols = st.columns(len(recommendations))
             for idx, rec in enumerate(recommendations):
                 with cols[idx]:
-                    st.write(f"### {rec['이름']}")
-                    st.write(f"1. 가격: {rec['가격']}")
-                    st.write(f"2. 면적: {rec['면적']}")
-                    st.write(f"3. 위치: {rec['위치']}")
+                    st.markdown(f"#### {rec['이름']}")
+                    st.write(f"가격: {rec['가격']}")
+                    st.write(f"면적: {rec['면적']}")
+                    st.write(f"위치: {rec['위치']}")
 
 
 def search_building():
@@ -264,7 +307,6 @@ def search_building():
     )
 
     query = session.query(Building).join(RealestateDeal)
-    print(query)
 
     query = query.join(
         latest_deal_subquery,
@@ -290,6 +332,10 @@ def search_building():
     size = [size * 3.3058 for size in filters.get("건물 면적")]
     price_range = get_price(filters.get("가격 범위"))
     floor = get_floor(filters.get("층"))
+    district = filters.get("구")
+    if district:
+        query = query.filter(Building.address.has(Address.district == district))
+
     if tags:
         for tag in tags:
             query = query.filter(
@@ -327,6 +373,7 @@ def search_building():
 
     buildings = query.limit(50).all()
     st.session_state["buildings"] = buildings
+    print(len(buildings))
 
 
 def get_recommend():
