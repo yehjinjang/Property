@@ -104,7 +104,7 @@ def show_filter_page():
     col1, col2, col3 = st.columns([1, 5, 1])
 
     with col2:
-        if st.button("🏠 추천 받기", use_container_width=True):
+        if st.button("추천 받기", use_container_width=True):
             st.session_state["filters"].update({
                 "건물 유형": building_type,
                 "건물 면적": size,
