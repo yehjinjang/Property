@@ -137,22 +137,34 @@ def show_splash_page():
     selected_filters = {k: v for k, v in filters.items() if v}
 
     if selected_filters:
-        st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)  
+        st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)
         for key, value in selected_filters.items():
             icon = ICON_MAP.get(key, "🏷️")
+            
             if isinstance(value, bool):
+                # bool 타입은 기존처럼 키 값만 출력
                 display_text = f"{icon} {key}"
+            elif key == "건물 유형":
+                display_text = f"{icon} 건물 유형은 {value}"
+            elif key == "가격 범위":
+                display_text = f"{icon} 가격 범위는 {value}"
+            elif key == "건물 면적" and isinstance(value, (list, tuple)) and len(value) == 2:
+                display_text = f"{icon} 건물 면적은 {value[0]} ~ {value[1]} 평"
+            elif key == "층":
+                display_text = f"{icon} 층은 {value}"
             else:
+                # 나머지 경우 기존 방식 그대로
                 display_text = f"{icon} {key}: {value}"
             
-            st.markdown(f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)  
+            st.markdown(
+                f'<p style="text-align: center; font-weight: bold; background-color: #000000; padding: 20px; border-radius: 10px;">{display_text}</p>', 
+                unsafe_allow_html=True
+            )
+        st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.info("🔎 선택한 조건이 없습니다.")
 
-
-    col1, col2, col3 = st.columns([1, 3, 1]) 
-
+    col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
         if st.button("확인", key="confirm_splash", use_container_width=True):
             st.session_state["loading"] = True
@@ -169,7 +181,7 @@ def show_loading_page():
     
 # 결과 pages
 def show_results_page():
-    if st.button("<", key="back_results"):
+    if st.button("홈으로", key="back_results"):
         st.session_state["page"] = "filters"
         st.rerun()
     st.title("📍 추천 매물 지도")
