@@ -48,12 +48,12 @@ def get_floor(floor):
     elif floor == "9층 이상 (고층)":
         return (9, None)
 
-
+# 첫 enter filter page
 def show_filter_page():
     st.title("🏡 REAL-ESTATE")
     st.subheader("권병진님, 원하는 집을 찾아드려요!")
 
-    st.markdown("### 원하는 조건을 선택하세요!")
+    st.markdown("### 원하는 조건을 선택하세요")
 
     col1, col2, col3 = st.columns(3)
 
@@ -77,20 +77,24 @@ def show_filter_page():
             "층 선택", ["전체", "1~5층 (저층)", "6~8층 (중층)", "9층 이상 (고층)"]
         )
 
-    if st.button("🏠 추천 받기"):
-        st.session_state["filters"] = {
-            "병세권": hs,
-            "역세권": ss,
-            "버세권": bs,
-            "신축 여부": new_building,
-            "건물 유형": building_type,
-            "건물 면적": size,
-            "가격 범위": price,
-            "층": floor,
-        }
-        st.session_state["page"] = "splash"
-        st.rerun()
+    col1, col2, col3 = st.columns([1, 5, 1])
 
+    with col2:
+        if st.button("🏠 추천 받기", use_container_width=True):
+            st.session_state["filters"] = {
+                "병세권": hs,
+                "역세권": ss,
+                "버세권": bs,
+                "신축 여부": new_building,
+                "건물 유형": building_type,
+                "건물 면적": size,
+                "가격 범위": price,
+                "층": floor,
+            }
+            st.session_state["page"] = "splash"
+            st.rerun()
+            
+# for spalsh pages
 ICON_MAP = {
     "병세권": "🏥",  
     "역세권": "🚇",  
@@ -101,7 +105,7 @@ ICON_MAP = {
     "층": "🛗",  
 }
 
-
+# 확인 페이지 
 def show_splash_page():
     if st.button("<", key="back_splash"):
         st.session_state["page"] = "filters"
@@ -130,7 +134,7 @@ def show_splash_page():
             st.session_state["page"] = "loading"
             st.rerun()
 
-
+# 결과 pages
 def show_results_page():
     st.title("📍 추천 매물 지도")
 
