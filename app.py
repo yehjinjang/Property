@@ -41,7 +41,7 @@ session = Session()
 BUILDING_AGE_THRESHOLD = 5
 
 
-st.sidebar.title("🌱 SeSAC Mini Project")
+# st.sidebar.title("🌱 SeSAC Mini Project")
 
 def get_price(price):
     if price == "1억 이하":
