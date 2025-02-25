@@ -281,7 +281,7 @@ def show_results_page():
                 if not building.address.sub_lot_number
                 else f"서울 {building.address.district} {building.address.legal_dong} {building.address.main_lot_number}-{building.address.sub_lot_number}"
             ),
-            "건축년도": f"서울 {building.construction_year}",
+            "건축년도": f"{building.construction_year}",
             "유형": f"서울 {building.purpose}",
             "층수": f"서울 {building.floor}",
             "lat": building.address.latitude,
